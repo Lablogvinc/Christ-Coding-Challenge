@@ -429,6 +429,82 @@ CREATE TABLE IF NOT EXISTS ArticleAggregates (
         return aggregates;
     }
 
+    public async Task<List<ArticleDetail>> GetArticlesForGroupAsync(string language, string? mat, string? mat2, string? mat3, string? mrk, string? leg, string? leg2, string? leg3, string? ziel, string? wrg2, string? whg2, string? koll)
+    {
+        using var connection = new SqliteConnection($"Data Source={DbPath}");
+        await connection.OpenAsync();
+
+        // Get all articles with their attributes for the specified language
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT DISTINCT a.id, a.articleId 
+            FROM Articles a
+            WHERE EXISTS (
+                SELECT 1 FROM Attributes WHERE article_id = a.id AND language = @language
+            )
+            ORDER BY a.id
+        ";
+        command.Parameters.AddWithValue("@language", language);
+
+        var articles = new List<ArticleDetail>();
+
+        using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            var articleId = reader.GetString(0);
+            var articleDetail = new ArticleDetail(
+                Id: articleId,
+                ArticleId: reader.GetString(1),
+                Mat: GetAttributeFromDb(connection, articleId, "MAT", language),
+                Mat2: GetAttributeFromDb(connection, articleId, "MAT2", language),
+                Mat3: GetAttributeFromDb(connection, articleId, "MAT3", language),
+                Mrk: GetAttributeFromDb(connection, articleId, "MRK", language),
+                Leg: GetAttributeFromDb(connection, articleId, "LEG", language),
+                Leg2: GetAttributeFromDb(connection, articleId, "LEG2", language),
+                Leg3: GetAttributeFromDb(connection, articleId, "LEG3", language),
+                Ziel: GetAttributeFromDb(connection, articleId, "ZIEL", language),
+                Wrg2: GetAttributeFromDb(connection, articleId, "WRG_2", language),
+                Whg2: GetAttributeFromDb(connection, articleId, "WHG_2", language),
+                Koll: GetAttributeFromDb(connection, articleId, "KOLL", language)
+            );
+
+            // Filter by the specified criteria
+            if (!MatchesCriteria(articleDetail, mat, mat2, mat3, mrk, leg, leg2, leg3, ziel, wrg2, whg2, koll))
+                continue;
+
+            articles.Add(articleDetail);
+        }
+
+        return articles;
+    }
+
+    private string? GetAttributeFromDb(SqliteConnection connection, string articleId, string attributeKey, string language)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT value FROM Attributes WHERE article_id = @id AND attribute_key = @key AND language = @lang LIMIT 1";
+        command.Parameters.AddWithValue("@id", articleId);
+        command.Parameters.AddWithValue("@key", attributeKey);
+        command.Parameters.AddWithValue("@lang", language);
+
+        var result = command.ExecuteScalar();
+        return result != null ? result.ToString() : null;
+    }
+
+    private bool MatchesCriteria(ArticleDetail article, string? mat, string? mat2, string? mat3, string? mrk, string? leg, string? leg2, string? leg3, string? ziel, string? wrg2, string? whg2, string? koll)
+    {
+        return (mat == null || mat == string.Empty || article.Mat == mat) &&
+               (mat2 == null || mat2 == string.Empty || article.Mat2 == mat2) &&
+               (mat3 == null || mat3 == string.Empty || article.Mat3 == mat3) &&
+               (mrk == null || mrk == string.Empty || article.Mrk == mrk) &&
+               (leg == null || leg == string.Empty || article.Leg == leg) &&
+               (leg2 == null || leg2 == string.Empty || article.Leg2 == leg2) &&
+               (leg3 == null || leg3 == string.Empty || article.Leg3 == leg3) &&
+               (ziel == null || ziel == string.Empty || article.Ziel == ziel) &&
+               (wrg2 == null || wrg2 == string.Empty || article.Wrg2 == wrg2) &&
+               (whg2 == null || whg2 == string.Empty || article.Whg2 == whg2) &&
+               (koll == null || koll == string.Empty || article.Koll == koll);
+    }
+    
     private static string? GetPreferredAttributeValue(List<AttributeItem> attributes, string attributeKey)
     {
         return attributes
@@ -452,3 +528,4 @@ CREATE TABLE IF NOT EXISTS ArticleAggregates (
 public sealed record Article(string Id, string ArticleId, List<AttributeItem> Attributes);
 public sealed record AttributeItem(string? Key, string? Source, string? Value, string? Label, string? Language);
 public sealed record AggregateData(string Language, string? Mat, string? Mat2, string? Mat3, string? Mrk, string? Leg, string? Leg2, string? Leg3, string? Ziel, string? Wrg2, string? Whg2, string? Koll, int Count);
+public sealed record ArticleDetail(string Id, string ArticleId, string? Mat, string? Mat2, string? Mat3, string? Mrk, string? Leg, string? Leg2, string? Leg3, string? Ziel, string? Wrg2, string? Whg2, string? Koll);

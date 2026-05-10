@@ -58,6 +58,24 @@ static async Task RunHttpListenerAsync(ArticleProcessor processor, int port, Can
                         responseText = JsonSerializer.Serialize(aggregates);
                         contentType = "application/json";
                     }
+                    else if (context.Request.Url.AbsolutePath == "/api/articles")
+                    {
+                        var language = context.Request.QueryString["language"] ?? "de";
+                        var mat = context.Request.QueryString["mat"];
+                        var mat2 = context.Request.QueryString["mat2"];
+                        var mat3 = context.Request.QueryString["mat3"];
+                        var mrk = context.Request.QueryString["mrk"];
+                        var leg = context.Request.QueryString["leg"];
+                        var leg2 = context.Request.QueryString["leg2"];
+                        var leg3 = context.Request.QueryString["leg3"];
+                        var ziel = context.Request.QueryString["ziel"];
+                        var wrg2 = context.Request.QueryString["wrg_2"];
+                        var whg2 = context.Request.QueryString["whg_2"];
+                        var koll = context.Request.QueryString["koll"];
+                        var articles = await processor.GetArticlesForGroupAsync(language, mat, mat2, mat3, mrk, leg, leg2, leg3, ziel, wrg2, whg2, koll);
+                        responseText = JsonSerializer.Serialize(articles);
+                        contentType = "application/json";
+                    }
                     else
                     {
                         responseText = "OK";
@@ -66,6 +84,9 @@ static async Task RunHttpListenerAsync(ArticleProcessor processor, int port, Can
                     var responseBytes = Encoding.UTF8.GetBytes(responseText);
                     context.Response.StatusCode = 200;
                     context.Response.ContentType = contentType;
+                    context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                    context.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                    context.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type");
                     context.Response.ContentLength64 = responseBytes.Length;
                     await context.Response.OutputStream.WriteAsync(responseBytes, token);
                 }
@@ -75,6 +96,9 @@ static async Task RunHttpListenerAsync(ArticleProcessor processor, int port, Can
                     var responseBytes = Encoding.UTF8.GetBytes(errorResponse);
                     context.Response.StatusCode = 500;
                     context.Response.ContentType = "application/json";
+                    context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                    context.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                    context.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type");
                     context.Response.ContentLength64 = responseBytes.Length;
                     await context.Response.OutputStream.WriteAsync(responseBytes, token);
                 }
