@@ -1,0 +1,8 @@
+bin/
+obj/
+*.db
+*.log
+.vscode/
+.git/
+Dockerfile*
+.dockerignore

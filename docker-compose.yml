@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  backend:
+    container_name: coding_challenge_backend
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./Backend/data:/app/data
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
