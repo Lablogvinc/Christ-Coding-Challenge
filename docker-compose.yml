@@ -13,3 +13,12 @@ services:
     restart: unless-stopped
     tty: true
     stdin_open: true
+
+  frontend:
+    container_name: coding_challenge_frontend
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5001:80"
+    restart: unless-stopped
