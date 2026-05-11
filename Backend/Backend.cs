@@ -434,13 +434,13 @@ CREATE TABLE IF NOT EXISTS ArticleAggregates (
         using var connection = new SqliteConnection($"Data Source={DbPath}");
         await connection.OpenAsync();
 
-        // Get all articles with their attributes for the specified language
+        // Get all articles with their attributes for the specified language or language-neutral values
         using var command = connection.CreateCommand();
         command.CommandText = @"
             SELECT DISTINCT a.id, a.articleId 
             FROM Articles a
             WHERE EXISTS (
-                SELECT 1 FROM Attributes WHERE article_id = a.id AND language = @language
+                SELECT 1 FROM Attributes WHERE article_id = a.id AND (language = @language OR language = '')
             )
             ORDER BY a.id
         ";
@@ -465,7 +465,14 @@ CREATE TABLE IF NOT EXISTS ArticleAggregates (
                 Ziel: GetAttributeFromDb(connection, articleId, "ZIEL", language),
                 Wrg2: GetAttributeFromDb(connection, articleId, "WRG_2", language),
                 Whg2: GetAttributeFromDb(connection, articleId, "WHG_2", language),
-                Koll: GetAttributeFromDb(connection, articleId, "KOLL", language)
+                Koll: GetAttributeFromDb(connection, articleId, "KOLL", language),
+                Far: GetAttributeFromDb(connection, articleId, "FAR", language),
+                Agr: GetAttributeFromDb(connection, articleId, "AGR", language),
+                Stil: GetAttributeFromDb(connection, articleId, "STIL", language),
+                WRG_HYB: GetAttributeFromDb(connection, articleId, "WRG_HYB", language),
+                Opt: GetAttributeFromDb(connection, articleId, "OPT", language),
+                Gol: GetAttributeFromDb(connection, articleId, "GOL", language),
+                MITMAS_CFI4: GetAttributeFromDb(connection, articleId, "MITMAS_CFI4", language)
             );
 
             // Filter by the specified criteria
@@ -481,7 +488,15 @@ CREATE TABLE IF NOT EXISTS ArticleAggregates (
     private string? GetAttributeFromDb(SqliteConnection connection, string articleId, string attributeKey, string language)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = "SELECT value FROM Attributes WHERE article_id = @id AND attribute_key = @key AND language = @lang LIMIT 1";
+        command.CommandText = @"
+            SELECT value
+            FROM Attributes
+            WHERE article_id = @id
+              AND attribute_key = @key
+              AND (language = @lang OR language = '')
+            ORDER BY CASE WHEN language = @lang THEN 0 ELSE 1 END
+            LIMIT 1
+        ";
         command.Parameters.AddWithValue("@id", articleId);
         command.Parameters.AddWithValue("@key", attributeKey);
         command.Parameters.AddWithValue("@lang", language);
@@ -528,4 +543,5 @@ CREATE TABLE IF NOT EXISTS ArticleAggregates (
 public sealed record Article(string Id, string ArticleId, List<AttributeItem> Attributes);
 public sealed record AttributeItem(string? Key, string? Source, string? Value, string? Label, string? Language);
 public sealed record AggregateData(string Language, string? Mat, string? Mat2, string? Mat3, string? Mrk, string? Leg, string? Leg2, string? Leg3, string? Ziel, string? Wrg2, string? Whg2, string? Koll, int Count);
-public sealed record ArticleDetail(string Id, string ArticleId, string? Mat, string? Mat2, string? Mat3, string? Mrk, string? Leg, string? Leg2, string? Leg3, string? Ziel, string? Wrg2, string? Whg2, string? Koll);
+public sealed record ArticleDetail(string Id, string ArticleId, string? Mat, string? Mat2, string? Mat3, string? Mrk, string? Leg, string? Leg2, string? Leg3, string? Ziel, string? Wrg2, string? Whg2, string? Koll, string? Far, string? Agr, string? Stil, string? WRG_HYB, string? Opt, string
+? Gol, string? MITMAS_CFI4);

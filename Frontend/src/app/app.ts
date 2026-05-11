@@ -34,6 +34,13 @@ interface ArticleDetail {
   Wrg2?: string;
   Whg2?: string;
   Koll?: string;
+  Far?: string;
+  Agr?: string;
+  Stil?: string;
+  WRG_HYB?: string;
+  Opt?: string;
+  Gol?: string;
+  MITMAS_CFI4?: string;
 }
 
 @Component({
@@ -88,34 +95,30 @@ interface ArticleDetail {
             <tr>
               <th>ID</th>
               <th>Artikel-ID</th>
-              <th>Material</th>
-              <th>Material 2</th>
-              <th>Material 3</th>
-              <th>Marke</th>
-              <th>Legierung</th>
-              <th>Legierung 2</th>
-              <th>Legierung 3</th>
-              <th>Ziel-Geschlecht</th>
+              <th>Farbe</th>
+              <th>Altersgruppe</th>
+              <th>Stil</th>
+              <th>Optik</th>
+              <th>Warenhauptgruppe Hybris</th>
               <th>Warengruppe</th>
               <th>Warenhauptgruppe</th>
-              <th>Kollektion</th>
+              <th>Go-Live Datum</th>
+              <th>Kollektionsjahr</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let article of articles">
               <td>{{ article.Id }}</td>
               <td>{{ article.ArticleId }}</td>
-              <td>{{ article.Mat || 'k. A.' }}</td>
-              <td>{{ article.Mat2 || 'k. A.' }}</td>
-              <td>{{ article.Mat3 || 'k. A.' }}</td>
-              <td>{{ article.Mrk || 'k. A.' }}</td>
-              <td>{{ article.Leg || 'k. A.' }}</td>
-              <td>{{ article.Leg2 || 'k. A.' }}</td>
-              <td>{{ article.Leg3 || 'k. A.' }}</td>
-              <td>{{ article.Ziel || 'k. A.' }}</td>
+              <td>{{ article.Far || 'k. A.' }}</td>
+              <td>{{ article.Agr || 'k. A.' }}</td>
+              <td>{{ article.Stil || 'k. A.' }}</td>
+              <td>{{ article.Opt || 'k. A.' }}</td>
+              <td>{{ article.WRG_HYB || 'k. A.' }}</td>
               <td>{{ article.Wrg2 || 'k. A.' }}</td>
               <td>{{ article.Whg2 || 'k. A.' }}</td>
-              <td>{{ article.Koll || 'k. A.' }}</td>
+              <td>{{ article.Gol || 'k. A.' }}</td>
+              <td>{{ article.MITMAS_CFI4 || 'k. A.' }}</td>
             </tr>
           </tbody>
         </table>
@@ -185,6 +188,7 @@ export class App implements OnInit {
       next: (data) => {
         console.log('Articles received:', data);
         this.articles = data;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error fetching articles:', error);
@@ -195,4 +199,5 @@ export class App implements OnInit {
   isSelected(item: AggregateData): boolean {
     return this.selectedItem === item;
   }
+  
 }
