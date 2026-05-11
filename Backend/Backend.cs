@@ -472,7 +472,24 @@ CREATE TABLE IF NOT EXISTS ArticleAggregates (
                 WRG_HYB: GetAttributeFromDb(connection, articleId, "WRG_HYB", language),
                 Opt: GetAttributeFromDb(connection, articleId, "OPT", language),
                 Gol: GetAttributeFromDb(connection, articleId, "GOL", language),
-                MITMAS_CFI4: GetAttributeFromDb(connection, articleId, "MITMAS_CFI4", language)
+                MITMAS_CFI4: GetAttributeFromDb(connection, articleId, "MITMAS_CFI4", language),
+                IsClock: IsClockArticle(connection, articleId, language),
+                Bfa: GetAttributeFromDb(connection, articleId, "BFA", language),
+                Bmat: GetAttributeFromDb(connection, articleId, "BMAT", language),
+                Bva: GetAttributeFromDb(connection, articleId, "BVA", language),
+                Blg: GetAttributeFromDb(connection, articleId, "BLG", language),
+                Gef: GetAttributeFromDb(connection, articleId, "GEF", language),
+                Gdi: GetAttributeFromDb(connection, articleId, "GDI", language),
+                Gdm: GetAttributeFromDb(connection, articleId, "GDM", language),
+                Gsa: GetAttributeFromDb(connection, articleId, "GSA", language),
+                Kal: GetAttributeFromDb(connection, articleId, "KAL", language),
+                Sar: GetAttributeFromDb(connection, articleId, "SAR", language),
+                Taf: GetAttributeFromDb(connection, articleId, "TAF", language),
+                Wad: GetAttributeFromDb(connection, articleId, "WAD", language),
+                Wka: GetAttributeFromDb(connection, articleId, "WKA", language),
+                Zba: GetAttributeFromDb(connection, articleId, "ZBA", language),
+                Zbf: GetAttributeFromDb(connection, articleId, "ZBF", language),
+                Typu: GetAttributeFromDb(connection, articleId, "TYPU", language)
             );
 
             // Filter by the specified criteria
@@ -519,6 +536,19 @@ CREATE TABLE IF NOT EXISTS ArticleAggregates (
                (whg2 == null || whg2 == string.Empty || article.Whg2 == whg2) &&
                (koll == null || koll == string.Empty || article.Koll == koll);
     }
+
+    private bool IsClockArticle(SqliteConnection connection, string articleId, string language)
+    {
+        // Check if any clock-specific attribute has a value
+        string[] clockKeys = { "BFA", "BMAT", "BVA", "BLG", "GEF", "GDI", "GDM", "GSA", "KAL", "SAR", "TAF", "WAD", "WKA", "ZBA", "ZBF", "TYPU" };
+        foreach (var key in clockKeys)
+        {
+            var value = GetAttributeFromDb(connection, articleId, key, language);
+            if (!string.IsNullOrEmpty(value))
+                return true;
+        }
+        return false;
+    }
     
     private static string? GetPreferredAttributeValue(List<AttributeItem> attributes, string attributeKey)
     {
@@ -543,5 +573,42 @@ CREATE TABLE IF NOT EXISTS ArticleAggregates (
 public sealed record Article(string Id, string ArticleId, List<AttributeItem> Attributes);
 public sealed record AttributeItem(string? Key, string? Source, string? Value, string? Label, string? Language);
 public sealed record AggregateData(string Language, string? Mat, string? Mat2, string? Mat3, string? Mrk, string? Leg, string? Leg2, string? Leg3, string? Ziel, string? Wrg2, string? Whg2, string? Koll, int Count);
-public sealed record ArticleDetail(string Id, string ArticleId, string? Mat, string? Mat2, string? Mat3, string? Mrk, string? Leg, string? Leg2, string? Leg3, string? Ziel, string? Wrg2, string? Whg2, string? Koll, string? Far, string? Agr, string? Stil, string? WRG_HYB, string? Opt, string
-? Gol, string? MITMAS_CFI4);
+public sealed record ArticleDetail(
+    string Id,
+    string ArticleId,
+    string? Mat,
+    string? Mat2,
+    string? Mat3,
+    string? Mrk,
+    string? Leg,
+    string? Leg2,
+    string? Leg3,
+    string? Ziel,
+    string? Wrg2,
+    string? Whg2,
+    string? Koll,
+    string? Far,
+    string? Agr,
+    string? Stil,
+    string? WRG_HYB,
+    string? Opt,
+    string? Gol,
+    string? MITMAS_CFI4,
+    bool IsClock,
+    string? Bfa,
+    string? Bmat,
+    string? Bva,
+    string? Blg,
+    string? Gef,
+    string? Gdi,
+    string? Gdm,
+    string? Gsa,
+    string? Kal,
+    string? Sar,
+    string? Taf,
+    string? Wad,
+    string? Wka,
+    string? Zba,
+    string? Zbf,
+    string? Typu
+);
