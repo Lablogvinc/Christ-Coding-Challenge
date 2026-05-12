@@ -25,5 +25,8 @@ WORKDIR /app
 # Copy the published application from the build stage
 COPY --from=build /app/publish .
 
+# Expose the backend port
+EXPOSE 5000
+
 # Set the entry point
 ENTRYPOINT ["dotnet", "CCC_Backend.dll"]

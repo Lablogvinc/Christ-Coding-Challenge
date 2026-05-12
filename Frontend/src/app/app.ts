@@ -194,8 +194,8 @@ export class App implements OnInit {
   }
 
   fetchAggregates() {
-    console.log('Fetching aggregates from http://localhost:5000/api/aggregates');
-    this.http.get<AggregateData[]>('http://localhost:5000/api/aggregates').subscribe({
+    console.log('Fetching aggregates from /api/aggregates');
+    this.http.get<AggregateData[]>('/api/aggregates').subscribe({
       next: (data) => {
         console.log('Aggregates received:', data);
         this.aggregates = data;
@@ -235,7 +235,7 @@ export class App implements OnInit {
     });
 
     console.log('Fetching articles with params:', params.toString());
-    this.http.get<ArticleDetail[]>(`http://localhost:5000/api/articles?${params}`).subscribe({
+    this.http.get<ArticleDetail[]>(`/api/articles?${params}`).subscribe({
       next: (data) => {
         console.log('Articles received:', data);
         this.articles = data;
